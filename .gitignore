@@ -1,0 +1,25 @@
+#environment
+venv/
+
+#byte compiled/optimized/DLL files
+*.pyc
+__pycache__/
+
+#flask
+instance/
+
+#unit test/ coverage reports
+.pytest_cache/
+.coverage
+htmlcov/
+
+#distribution
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+#pyenv
+.python-version
