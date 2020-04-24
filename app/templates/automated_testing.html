@@ -26,8 +26,9 @@ input[type=file]{
   <body>
       <div class="container-md input-area" align="center">
         <h1>Flair Detector</h1>
+
         <form action="{{ url_for('automated_testing')}}" method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" required />
+            <input type="file" name="files" required />
             <p> Supported formats: txt</p>
             <button type="submit" class="btn btn-outline-dark">Submit</button>
         </form>

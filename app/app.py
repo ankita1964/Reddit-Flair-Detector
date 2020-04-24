@@ -18,7 +18,7 @@ with open("reddit_secret_keys.json") as f:
 
 @app.route('/')
 def home():
-    return render_template("index.html")
+    return render_template("automated_testing.html")
 
 replace_by_space = re.compile('[/(){}\[\]\|@,;]')
 bad_symbols = re.compile('[^0-9a-z #+_]')
@@ -83,6 +83,55 @@ def detect_flair():
     post_dict['title_comments_body_url'] = post_dict['title'] + ' ' + post_dict['comments'] + ' ' + post_dict['body'] + ' ' + post_dict['url']
     output = lr_model.predict([post_dict['title_comments_body_url']])
     return render_template('index.html', detected_flair = 'The flair for the post is: {}'.format(output))
+    
+def detect_flair_txt(post_url):
+    post_url = post_url.lower()
+    reddit = praw.Reddit(client_id = param['client_id'],
+                     client_secret = param['api_key'],
+                     user_agent = param['useragent'])
+    submission = reddit.submission(url=post_url)
+    post_dict = {}
+    post_dict['title'] = submission.title
+    post_dict['body'] = submission.selftext
+    post_dict['url'] = submission.url
+    submission.comments.replace_more(limit=None)
+    comment = ''
+    for top_level_comment in submission.comments:
+        comment = comment + ' ' + top_level_comment.body
+    post_dict["comments"] = comment
 
+    post_dict['title'] = clean_data(post_dict['title'])
+    post_dict['comments'] = clean_data(post_dict['comments'])
+    post_dict['body'] = clean_data(post_dict['body'])
+
+    post_dict['url'] = clean_url(post_dict['url'])
+    post_dict['url'] = clean_data(post_dict['url'])
+    post_dict['url'] = reddit_url(post_dict['url'])
+    post_dict['url'] = clean_data(post_dict['url'])
+    post_dict['title_comments_body_url'] = post_dict['title'] + ' ' + post_dict['comments'] + ' ' + post_dict['body'] + ' ' + post_dict['url']
+    output = lr_model.predict([post_dict['title_comments_body_url']])
+    return output
+
+@app.route('/automated_testing', methods=['POST'])
+def automated_testing():
+    files = open("upload_file/file.txt", "rb")
+    #files = {'upload_file': open('file.txt','rb')}
+    #r = requests.post(url, files=files)    
+    lines = [x.decode('utf8').strip() for x in files.readlines()]
+    inp = []
+    out = []
+    detected_flair = ""
+    for line in lines:
+        inp.append(line)
+        print(line)
+        print(type(line))
+        output = detect_flair_txt(line).tostring()
+        out.append(output)
+        print(type(output))
+    output_dict = {"key": inp,"value":out}
+
+    print(output_dict)    
+    #print(type(output_dict))
+    return output_dict
 if __name__ == "__main__":
     app.run(debug=True)
