@@ -1,6 +1,9 @@
 #environment
 venv/
 
+#system settings 
+.vscode/
+
 #byte compiled/optimized/DLL files
 *.pyc
 __pycache__/
