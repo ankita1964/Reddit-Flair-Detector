@@ -8,7 +8,6 @@ import nltk
 from nltk.corpus import stopwords
 from werkzeug.utils import secure_filename
 import json
-from json import JSONEncoder
 
 app = Flask(__name__)
 
@@ -113,41 +112,37 @@ def detect_flair_txt(post_url):
     output = lr_model.predict([post_dict['title_comments_body_url']])
     return str(output)
 
-class NumpyArrayEncoder(JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return JSONEncoder.default(self, obj)
-
-@app.route('/automated_testing', methods=['POST'])
+@app.route('/automated_testing', methods=['POST', 'GET'])
 def automated_testing():
-    #f = open("upload_file/file.txt", "rb")
-    f = request.files['upload_file']
-    lines = [x.decode('utf8').strip() for x in f.readlines()]
-    inp = []
-    out = []
-    output_dict = {}
-    for line in lines:
-        print(line)
-        print(type(line))
-        inp.append(line)
-        output = detect_flair_txt(line)
-        out.append(output)
-        print(output)
-        print(type(output))
-    #for i in out: 
-    #    i = i.decode('ascii')
-    
-    for key in inp: 
-        for value in out: 
-            output_dict[key] = value 
-            out.remove(value) 
-            break  
-    print(output_dict)
-    json_obj = json.dumps(output_dict, indent = 3)
-    print(json_obj)
-    with open("result.json", "w") as output_file:
-        output_file.write(json_obj)
-    return send_file("result.json")
+    if request.method == 'POST': 
+        #f = open("upload_file/file.txt", "rb")
+        f = request.files['upload_file']
+        lines = [x.decode('utf8').strip() for x in f.readlines()]
+        inp = []
+        out = []
+        output_dict = {}
+        for line in lines:
+            print(line)
+            print(type(line))
+            inp.append(line)
+            output = detect_flair_txt(line)
+            out.append(output)
+            print(output)
+            print(type(output))
+        #for i in out: 
+        #    i = i.decode('ascii')
+        
+        for key in inp: 
+            for value in out: 
+                output_dict[key] = value 
+                out.remove(value) 
+                break  
+        print(output_dict)
+        #json_obj = json.dumps(output_dict, indent = 3)
+        #print(json_obj)
+        #with open("result.json", "w") as output_file:
+        #    output_file.write(json_obj)
+        #return send_file("result.json", as_attachment = True, attachement_filename = "result.json")
+        return jsonify(output_dict)
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
