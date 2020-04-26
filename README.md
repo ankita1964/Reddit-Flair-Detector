@@ -34,4 +34,5 @@ py app.py
 
 
 <h3> About the Detector: </h3> 
+
 The detector uses scikit's Logistic Regression model for classification of the posts for different flairs of the r/India subreddit. The model uses the posts' title, body (or self-text), comments and url as a combined feature. The accuracy achieved with imputed null values and combined feature is 78-81%. 
